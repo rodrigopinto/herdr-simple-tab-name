@@ -1,0 +1,29 @@
+id = "rodrigopinto.simple-tab-name"
+name = "Simple Tab Name"
+version = "0.1.0"
+min_herdr_version = "0.7.0"
+description = "Renames each tab to its focused pane's folder name, plus the running agent and a status icon if one is present"
+# Windows is not claimed: scripts/rename-tab.sh needs bash and the shell
+# hooks need zsh or bash, none of which Herdr provides or resolves on Windows.
+platforms = ["linux", "macos"]
+
+# Wires scripts/hooks/{zsh,bash}.sh into whichever rc files exist, so cd-tracking
+# needs no manual dotfile edit. Fish and other shells still get the
+# pane.agent_detected/pane.focused updates below, just not cd-tracking.
+[[startup]]
+command = ["bash", "scripts/install.sh"]
+
+[[events]]
+on = "pane.agent_detected"
+command = ["bash", "scripts/rename-tab.sh"]
+
+[[events]]
+on = "pane.focused"
+command = ["bash", "scripts/rename-tab.sh"]
+
+# Same relabel, fired on idle/working/blocked/done transitions so a tab picks
+# up a status icon (e.g. on the "agent finished" transition that also
+# triggers Herdr's own sound + workspace icon) without needing focus to move.
+[[events]]
+on = "pane.agent_status_changed"
+command = ["bash", "scripts/rename-tab.sh"]
